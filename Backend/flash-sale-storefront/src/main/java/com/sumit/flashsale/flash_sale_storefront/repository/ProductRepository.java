@@ -10,11 +10,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
-import com.sumit.flashsale.flash_sale_storefront.entity.Product;
+
 import java.util.List;
 
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -34,18 +33,37 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT DISTINCT p.category FROM Product p ORDER BY p.category")
     List<String> findDistinctCategories();
-    List<Product> findByIsFlashSaleTrue();
+    List<Product> findByFlashSaleTrue();
+
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    @Query(""" 
-            UPDATE Product p
-             SET p.stock = p.stock - :quantity,
-             p.updatedAt = CURRENT_TIMESTAMP
-              WHERE p.id = :productId
-              AND p.stock >= :quantity
-            """)
+    @Query("""
+    UPDATE Product p
+    SET p.stock = p.stock - :quantity,
+        p.pendingWarehouseQuantity =
+            p.pendingWarehouseQuantity + :quantity,
+        p.updatedAt = CURRENT_TIMESTAMP
+    WHERE p.id = :productId
+      AND p.stock >= :quantity
+    """)
     int reserveStock(
+            @Param("productId") Long productId,
+            @Param("quantity") int quantity
+    );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("""
+    UPDATE Product p
+    SET p.warehouseStock = p.warehouseStock - :quantity,
+        p.pendingWarehouseQuantity =
+            p.pendingWarehouseQuantity - :quantity
+    WHERE p.id = :productId
+      AND p.warehouseStock >= :quantity
+      AND p.pendingWarehouseQuantity >= :quantity
+    """)
+    int acknowledgeWarehouseQuantity(
             @Param("productId") Long productId,
             @Param("quantity") int quantity
     );

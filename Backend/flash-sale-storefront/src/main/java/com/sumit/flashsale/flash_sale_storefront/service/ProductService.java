@@ -80,7 +80,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductResponseDto> getFlashSaleProducts() {
-        return productRepository.findByIsFlashSaleTrue()
+        return productRepository.findByFlashSaleTrue()
                 .stream()
                 .map(ProductResponseDto::from)
                 .toList();

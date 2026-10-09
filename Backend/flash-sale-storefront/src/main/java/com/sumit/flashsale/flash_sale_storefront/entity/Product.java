@@ -34,6 +34,12 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(name = "warehouse_stock", nullable = false)
+    private Integer warehouseStock;
+
+    @Column(name = "pending_warehouse_quantity", nullable = false)
+    private Integer pendingWarehouseQuantity;
+
     @Column(name = "is_flash_sale", nullable = false)
     private Boolean flashSale;
 
