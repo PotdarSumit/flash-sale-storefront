@@ -1,4 +1,4 @@
-package com.sumit.flashsale.flash_sale_storefront.repositroy;
+package com.sumit.flashsale.flash_sale_storefront.repository;
 
 import com.sumit.flashsale.flash_sale_storefront.entity.WarehouseUpdate;
 import org.springframework.data.jpa.repository.JpaRepository;

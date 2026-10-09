@@ -1,0 +1,6 @@
+Backend/flash-sale-storefront/src/main/java/com/sumit/flashsale/flash_sale_storefront/controller/OrderController.java:32: new blank line at EOF.
+Backend/flash-sale-storefront/src/main/java/com/sumit/flashsale/flash_sale_storefront/dto/OrderResponseDto.java:30: new blank line at EOF.
+Backend/flash-sale-storefront/src/main/java/com/sumit/flashsale/flash_sale_storefront/entity/Order.java:62: new blank line at EOF.
+Backend/flash-sale-storefront/src/main/java/com/sumit/flashsale/flash_sale_storefront/repository/ProductRepository.java:41: trailing whitespace.
+[32m+[m[32m    @Query("""[m[41m [m
+Backend/flash-sale-storefront/src/main/java/com/sumit/flashsale/flash_sale_storefront/service/OrderService.java:101: new blank line at EOF.

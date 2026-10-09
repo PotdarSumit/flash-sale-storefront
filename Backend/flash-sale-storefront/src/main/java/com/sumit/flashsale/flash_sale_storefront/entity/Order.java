@@ -30,14 +30,24 @@ public class Order {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "purchase_price", nullable = false, precision = 10, scale = 2)
+    @Column(
+            name = "purchase_price",
+            nullable = false,
+            precision = 10,
+            scale = 2
+    )
     private BigDecimal purchasePrice;
 
-    @Column(name = "customer_identifier", nullable = false, length = 255)
+    @Column(
+            name = "customer_identifier",
+            nullable = false,
+            length = 255
+    )
     private String customerIdentifier;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String status = "PENDING";
+    private OrderStatus status = OrderStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -49,3 +59,4 @@ public class Order {
         }
     }
 }
+

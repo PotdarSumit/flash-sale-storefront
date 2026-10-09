@@ -1,15 +1,13 @@
 package com.sumit.flashsale.flash_sale_storefront.seeder;
 
 import com.sumit.flashsale.flash_sale_storefront.entity.Product;
-import com.sumit.flashsale.flash_sale_storefront.repositroy.ProductRepository;
+import com.sumit.flashsale.flash_sale_storefront.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import net.datafaker.Faker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
