@@ -2,6 +2,7 @@ package com.sumit.flashsale.flash_sale_storefront.controller;
 
 import com.sumit.flashsale.flash_sale_storefront.dto.WarehouseBatchAckRequest;
 import com.sumit.flashsale.flash_sale_storefront.dto.WarehouseBatchResponseDto;
+import com.sumit.flashsale.flash_sale_storefront.dto.WarehouseInventoryUpdateRequest;
 import com.sumit.flashsale.flash_sale_storefront.service.WarehouseBatchService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,4 +39,14 @@ public class WarehouseBatchController {
         warehouseBatchService.acknowledgeBatch(request);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PostMapping("/inventory")
+    public ResponseEntity<Void> updateInventory(
+            @Valid @RequestBody WarehouseInventoryUpdateRequest request) {
+
+        warehouseBatchService.updateWarehouseInventory(request);
+        return ResponseEntity.noContent().build();
+    }
+
 }

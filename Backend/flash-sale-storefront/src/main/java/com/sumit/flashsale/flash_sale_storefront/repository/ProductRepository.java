@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
+import com.sumit.flashsale.flash_sale_storefront.dto.WarehouseInventoryDto;
 
 import java.util.List;
 
@@ -73,4 +74,37 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdForUpdate(
             @Param("productId") Long productId
     );
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    @Query("""
+    UPDATE Product p
+    SET p.warehouseStock = :physicalStock,
+        p.price = :price,
+        p.updatedAt = CURRENT_TIMESTAMP
+    WHERE p.id = :productId
+    """)
+    int updateWarehouseInventory(
+            @Param("productId") Long productId,
+            @Param("physicalStock") int physicalStock,
+            @Param("price") java.math.BigDecimal price
+    );
+
+
+    @Query("""
+    SELECT new com.sumit.flashsale.flash_sale_storefront.dto.WarehouseInventoryDto(
+        p.id,
+        p.sku,
+        p.warehouseStock,
+        p.price,
+        p.flashSale
+    )
+    FROM Product p
+    ORDER BY p.id
+    """)
+    Page<com.sumit.flashsale.flash_sale_storefront.dto.WarehouseInventoryDto>
+    findWarehouseInventory(Pageable pageable);
+
+
 }

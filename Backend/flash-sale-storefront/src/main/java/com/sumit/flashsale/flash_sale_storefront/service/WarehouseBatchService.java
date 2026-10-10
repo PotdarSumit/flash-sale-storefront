@@ -155,4 +155,32 @@ public class WarehouseBatchService {
                 order.getPurchasePrice()
         );
     }
+
+
+    @Transactional
+    public void updateWarehouseInventory(
+            com.sumit.flashsale.flash_sale_storefront.dto.WarehouseInventoryUpdateRequest request) {
+
+        if (request == null
+                || request.productId() == null
+                || request.physicalStock() == null
+                || request.physicalStock() < 0
+                || request.price() == null
+                || request.price().signum() < 0) {
+            throw new IllegalArgumentException("Invalid warehouse inventory update");
+        }
+
+        int updated = productRepository.updateWarehouseInventory(
+                request.productId(),
+                request.physicalStock(),
+                request.price()
+        );
+
+        if (updated != 1) {
+            throw new IllegalArgumentException(
+                    "Product not found: " + request.productId()
+            );
+        }
+    }
+
 }
