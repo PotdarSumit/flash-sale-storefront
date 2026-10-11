@@ -7,4 +7,7 @@ $env:REDIS_PASSWORD = "gQAAAAAAA1UQAAIgcDIzYWY3ZWI5ODIwZDU0M2YzYmNkYjk2MjQzZjhjZ
 $env:DB_USERNAME = "postgres"
 $env:DB_PASSWORD = "sanu"
 
+$env:DASHBOARD_USERNAME = "admin"
+$env:DASHBOARD_PASSWORD = "Sumit123"
+
 .\mvnw.cmd spring-boot:run

@@ -4,66 +4,75 @@ import threading
 import requests
 from collections import Counter
 
-BASE_URL = "http://localhost:8080"
-PRODUCT_ID = 29
-PRICE = 2447.45
+BASE = "http://localhost:8080"
 SHOPPERS = 300
-
-# Update this if your OrderController has a different class-level mapping.
-ORDER_URL = f"{BASE_URL}/api/orders"
-
-barrier = threading.Barrier(SHOPPERS)
 session_local = threading.local()
 
+def session():
+    if not hasattr(session_local, "value"):
+        session_local.value = requests.Session()
+    return session_local.value
 
-def get_session():
-    if not hasattr(session_local, "session"):
-        session_local.session = requests.Session()
-    return session_local.session
+# Find a flash-sale product with available stock.
+r = requests.get(f"{BASE}/api/products/flash-sale", timeout=15)
+r.raise_for_status()
+products = r.json()
 
+available = [p for p in products if p.get("stock", 0) > 0]
+if not available:
+    print("No flash-sale products currently have stock. Check warehouse data.")
+    raise SystemExit(1)
 
-def buy(customer_number):
+product = available[0]
+product_id = product["id"]
+price = product["price"]
+initial_stock = product["stock"]
+
+print(f"Testing product ID: {product_id}")
+print(f"Displayed price: {price}")
+print(f"Initial displayed stock: {initial_stock}")
+print(f"Sending {SHOPPERS} simultaneous attempts...")
+
+barrier = threading.Barrier(SHOPPERS)
+
+def buy(n):
     payload = {
-        "productId": PRODUCT_ID,
+        "productId": product_id,
         "quantity": 1,
-        "customerIdentifier": f"flash-test-customer-{customer_number}",
-        "displayedPrice": PRICE
+        "customerIdentifier": f"flash-test-{n}",
+        "displayedPrice": price
     }
-
     try:
-        # Make all shoppers start as close together as possible.
-        barrier.wait(timeout=30)
-        response = get_session().post(
-            ORDER_URL,
-            json=payload,
-            timeout=60
+        barrier.wait(timeout=45)
+        response = session().post(
+            f"{BASE}/api/orders", json=payload, timeout=60
         )
         return response.status_code, response.text[:250]
-    except Exception as exc:
-        return "ERROR", str(exc)
+    except Exception as e:
+        return "ERROR", str(e)
 
+with concurrent.futures.ThreadPoolExecutor(max_workers=SHOPPERS) as pool:
+    results = list(pool.map(buy, range(1, SHOPPERS + 1)))
 
-if __name__ == "__main__":
-    print(f"Sending {SHOPPERS} purchase attempts to {ORDER_URL}")
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=SHOPPERS
-    ) as executor:
-        results = list(executor.map(buy, range(1, SHOPPERS + 1)))
+counts = Counter(status for status, _ in results)
+successes = counts.get(201, 0)
 
-    counts = Counter(status for status, _ in results)
-    print("\nHTTP result counts:")
-    for status, count in sorted(counts.items(), key=lambda item: str(item[0])):
-        print(f"  {status}: {count}")
+print("\nHTTP result counts:")
+for status, count in sorted(counts.items(), key=lambda x: str(x[0])):
+    print(f"  {status}: {count}")
 
-    successes = counts.get(201, 0)
-    print(f"\nSuccessful orders: {successes}")
-    print("Expected for starting stock 10: 10 successful orders")
+print(f"\nSuccessful orders: {successes}")
+print(f"Initial displayed stock: {initial_stock}")
 
-    if successes == 10:
-        print("HTTP-level check PASSED; verify database stock and order records.")
-    else:
-        print("HTTP-level check FAILED or needs investigation.")
+errors = [(s, body) for s, body in results if s not in (201, 400)]
+if errors:
+    print("Unexpected response sample:", errors[0])
 
-    errors = [(s, body) for s, body in results if s == "ERROR"]
-    if errors:
-        print("\nSample connection/client error:", errors[0][1])
+if successes <= initial_stock:
+    print("No HTTP-level evidence of overselling.")
+else:
+    print("POTENTIAL OVERSELLING: investigate immediately.")
+
+if successes == 0:
+    print("No successful orders. Inspect the HTTP response bodies.")
+

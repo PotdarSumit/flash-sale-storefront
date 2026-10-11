@@ -41,3 +41,8 @@ management:
   endpoint:
     health:
       show-details: never
+
+
+dashboard:
+  username: ${DASHBOARD_USERNAME:admin}
+  password: ${DASHBOARD_PASSWORD}

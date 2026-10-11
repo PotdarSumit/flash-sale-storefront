@@ -1,7 +1,6 @@
 package com.sumit.flashsale.flash_sale_storefront.dto;
 
 
-
 public record DashboardMetricsDto(
         long totalProducts,
         long flashSaleProducts,
@@ -10,7 +9,9 @@ public record DashboardMetricsDto(
         long pendingOrders,
         long unsyncedOrders,
         long databaseReadPermitsGranted,
-        long databaseReadRequestsRejected
+        long databaseReadRequestsRejected,
+        double databaseProductReadsPerSecond,
+        String r3MonitoringStatus
 ) {
 }
 
