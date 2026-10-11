@@ -1,0 +1,13 @@
+
+1..100 | ForEach-Object -Parallel {
+    try {
+        $response = Invoke-WebRequest -Uri "http://localhost:8080/api/products/search?keyword=milk&page=0&size=20" -UseBasicParsing -TimeoutSec 15
+        [int]$response.StatusCode
+    } catch {
+        if ($_.Exception.Response) {
+            [int]$_.Exception.Response.StatusCode
+        } else {
+            "ERROR"
+        }
+    }
+} -ThrottleLimit 50 | Group-Object | Select-Object Name, Count

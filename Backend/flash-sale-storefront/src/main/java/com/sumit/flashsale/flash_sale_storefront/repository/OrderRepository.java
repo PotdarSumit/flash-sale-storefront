@@ -1,6 +1,7 @@
 package com.sumit.flashsale.flash_sale_storefront.repository;
 
 import com.sumit.flashsale.flash_sale_storefront.entity.Order;
+import com.sumit.flashsale.flash_sale_storefront.entity.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +34,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findOrdersForWarehouseBatch(
             @Param("batchSize") int batchSize
     );
+
+
+    long countByStatus(OrderStatus status);
+
+    long countByWarehouseSyncedFalseAndWarehouseBatchIdIsNull();
+
 }

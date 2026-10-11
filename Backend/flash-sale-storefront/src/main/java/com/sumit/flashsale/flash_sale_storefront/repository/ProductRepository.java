@@ -107,4 +107,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     findWarehouseInventory(Pageable pageable);
 
 
+    long countByFlashSaleTrue();
+
+    long countByStockLessThanEqual(int stock);
+
+    long countByPendingWarehouseQuantityGreaterThan(int quantity);
+
+
+
 }

@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-950 antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

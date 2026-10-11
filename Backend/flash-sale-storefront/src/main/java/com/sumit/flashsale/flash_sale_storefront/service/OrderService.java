@@ -9,7 +9,9 @@ import com.sumit.flashsale.flash_sale_storefront.repository.OrderRepository;
 import com.sumit.flashsale.flash_sale_storefront.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.cache.CacheManager;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.util.List;
 
 @Service
@@ -17,13 +19,15 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CacheManager cacheManager;
 
     public OrderService(
             OrderRepository orderRepository,
-            ProductRepository productRepository
-    ) {
+            ProductRepository productRepository,
+            CacheManager cacheManager) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional
@@ -94,6 +98,20 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         Order savedOrder = orderRepository.save(order);
+
+        Long productId = product.getId();
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        var cache = cacheManager.getCache("products");
+                        if (cache != null) {
+                            cache.evict(productId);
+                        }
+                    }
+                }
+        );
 
         return OrderResponseDto.from(savedOrder);
     }
