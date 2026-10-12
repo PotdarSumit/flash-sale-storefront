@@ -116,10 +116,19 @@ public class ProductSeeder implements CommandLineRunner {
                 ThreadLocalRandom.current().nextDouble(10.0, 5000.0)
         ).setScale(2, RoundingMode.HALF_UP);
 
+
         product.setPrice(price);
-        product.setStock(ThreadLocalRandom.current().nextInt(0, 501));
+
+        int initialStock = ThreadLocalRandom.current().nextInt(0, 501);
+        product.setStock(initialStock);
+
+// Initialize warehouse inventory fields
+        product.setWarehouseStock(initialStock);
+        product.setPendingWarehouseQuantity(0);
+
         product.setFlashSale(ThreadLocalRandom.current().nextInt(100) < 10);
         product.setUpdatedAt(LocalDateTime.now());
+
 
         return product;
     }

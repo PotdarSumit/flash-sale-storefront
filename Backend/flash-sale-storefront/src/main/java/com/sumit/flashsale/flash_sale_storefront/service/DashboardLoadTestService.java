@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DashboardLoadTestService {
@@ -46,6 +48,9 @@ public class DashboardLoadTestService {
         long started = System.nanoTime();
         long durationNanos = TimeUnit.SECONDS.toNanos(durationSeconds);
         long deadline = started + durationNanos;
+
+        Map<Integer, AtomicLong> statusCounts = new ConcurrentHashMap<>();
+        AtomicLong transportErrors = new AtomicLong();
 
         AtomicLong total = new AtomicLong();
         AtomicLong successful = new AtomicLong();

@@ -1,0 +1,96 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: flash_sale_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 512m
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    mem_limit: 128m
+    restart: unless-stopped
+
+  backend1:
+    image: flash-sale-backend:local
+    build:
+      context: ./Backend/flash-sale-storefront
+      dockerfile: Dockerfile
+    environment: &backend_env
+      DB_URL: jdbc:postgresql://postgres:5432/flash_sale_db
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_USERNAME: default
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_SSL_ENABLED: "false"
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    mem_limit: 512m
+    restart: unless-stopped
+
+  backend2:
+    image: flash-sale-backend:local
+    build:
+      context: ./Backend/flash-sale-storefront
+      dockerfile: Dockerfile
+    environment: *backend_env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    mem_limit: 512m
+    restart: unless-stopped
+
+  storefront:
+    build:
+      context: ./frontEnd
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend1
+      - backend2
+    mem_limit: 96m
+    restart: unless-stopped
+
+  warehouse:
+    build:
+      context: ./warehouse-simulator
+      dockerfile: Dockerfile
+    environment:
+      STOREFRONT_BASE_URL: http://storefront
+    depends_on:
+      - storefront
+    mem_limit: 256m
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

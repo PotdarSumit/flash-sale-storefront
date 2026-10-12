@@ -22,15 +22,17 @@ spring:
     enabled: true
     location: classpath:db/migration
 
+
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       username: ${REDIS_USERNAME:default}
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD:}
       ssl:
-         enabled: true
+        enabled: ${REDIS_SSL_ENABLED:false}
       timeout: 2s
+
 
 
 management:
